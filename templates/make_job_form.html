@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div align="center" style="width: 800px; margin: 0 auto;">
+    <h1>{{ title }}</h1>
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <p class="alert alert-danger">
+            {{ message }}
+        </p>
+        <p>
+            {{ form.title.label }}<br>
+            {{ form.title(class="form-control") }}<br>
+            {% for error in form.title.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+        </p>
+        <p>
+            {{ form.team_leader_id.label }}<br>
+            {{ form.team_leader_id(class="form-control") }}<br>
+            {% for error in form.team_leader_id.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+        </p>
+        <p>
+            {{ form.work_size.label }}<br>
+            {{ form.work_size(class="form-control") }}<br>
+            {% for error in form.work_size.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+        </p>
+        <p>
+            {{ form.collaborators.label }}<br>
+            {{ form.collaborators(class="form-control") }}<br>
+            {% for error in form.collaborators.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+        </p>
+        <p>
+            {{ form.is_finished.label }}<br>
+            {{ form.is_finished(class="form-checkbox") }}<br>
+            {% for error in form.is_finished.errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ error }}
+        </div>
+        {% endfor %}
+        </p>
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    </form>
+</div>
+{% endblock %}
