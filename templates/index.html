@@ -1,5 +1,46 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h3 class="mt-3" style="text-align: center;">И на Марсе будут яблони цвести!!!</h3>
+    <div align="center">
+        <h1 class="text-center">Works log</h1>
+        <a href="/addjob" class="btn btn-secondary">
+            Добавить
+        </a>
+    </div>
+    {% for job in jobs %}
+        <div style="width: 50%; margin: 0 auto;">
+        <h2>Action # {{ loop.index }}</h2>
+        <table class="table table-secondary">
+            <thead>
+              <tr>
+                <th scope="col">Title of activity</th>
+                <th scope="col">Team leader</th>
+                <th scope="col">Duration</th>
+                <th scope="col">List of collaborators</th>
+                <th scope="col">Is finished</th>
+              </tr>
+            </thead>
+            <tr>
+                <th style="background-color: rgb(238,238,255)">{{ job[0] }}</th>
+                <td style="background-color: rgb(238,238,255)">{{ job[1] }}</td>
+                <td style="background-color: rgb(238,238,255)">{{ job[2] }}</td>
+                <td style="background-color: rgb(238,238,255)">{{ job[3] }}</td>
+
+                {% if job[4] %}
+                    <td style="background-color: rgb(138, 202, 133)">{{ job[4] }}</td>
+                {% else %}
+                    <td style="background-color: #ffeeff">{{ job[4] }}</td>
+                {% endif %}
+              </tr>
+        </table>
+        <div>
+            <a href="/edit_job/{{ job[5] }}" class="btn btn-warning">
+                Изменить
+            </a>
+            <a href="/delete_job/{{ job[5] }}" class="btn btn-danger">
+                Удалить
+            </a>
+        </div>
+        </div>
+    {% endfor %}
 {% endblock %}

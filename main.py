@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect
-from flask_login import login_user, LoginManager, login_required, logout_user
+from flask_login import login_user, LoginManager, login_required, logout_user, current_user
 
 # from api.jobs_api import jobs_bp
 from data import db_session
@@ -9,6 +9,7 @@ from data.departments import Department
 from data.login_form import LoginForm
 from data.register_form import RegisterForm
 from data.make_job_form import MakeJobForm
+from data.edit_job_form import EditJobForm
 
 from sqlalchemy import select, func
 
@@ -28,16 +29,16 @@ def load_user(user_id):
 @app.route("/")
 def index():
     session = db_session.create_session()
-    query = session.query(Jobs)
+    query = list(session.query(Jobs))
     jobs = []
 
     for job in query:
         team_leader_id = job.team_leader
         team_leader = session.query(User.name).filter(User.id == team_leader_id).first()[0]
-        some_job = [job.job, team_leader, job.work_size, job.collaborators, job.is_finished]
+        some_job = [job.job, team_leader, job.work_size, job.collaborators, job.is_finished, job.id, team_leader_id]
         jobs.append(some_job)
 
-    return render_template("actions.html", jobs=jobs)
+    return render_template("index.html", jobs=jobs)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -110,13 +111,47 @@ def add_job():
             work_size=form.work_size.data,
             collaborators=form.collaborators.data,
             is_finished=form.is_finished.data,
-            team_leader=form.team_leader_id.data,
+            team_leader=form.team_leader_id.data
         )
         session.add(job)
         session.commit()
 
         return redirect("/")
     return render_template("make_job_form.html", title="Добавление работы", form=form)
+
+
+@app.route("/delete_job/<int:id>")
+@login_required
+def delete_job(id):
+    session = db_session.create_session()
+    job = session.query(Jobs).filter(Jobs.id == id).first()
+    if job.team_leader != current_user.id and current_user.id != 1:
+        return redirect("/")
+
+    session.delete(job)
+    session.commit()
+    return redirect("/")
+
+
+@app.route("/edit_job/<int:id>", methods=["POST", "GET"])
+@login_required
+def edit_job(id):
+    form = EditJobForm()
+    if not form.validate_on_submit():
+        return render_template("edit_job_form.html", title="Изменение работы", form=form)
+
+    session = db_session.create_session()
+    job = session.query(Jobs).filter(Jobs.id == id).first()
+    if job.team_leader != current_user.id and current_user.id != 1:
+        return render_template("edit_job_form.html", title="Изменение работы",
+                               message="Извините, у вас недостаточно прав для этого действия", form=form)
+
+    session.query(Jobs).filter(Jobs.id == job.id).update({"job": f"{form.title.data}",
+                                                          "work_size": f"{form.work_size.data}",
+                                                          "collaborators": f"{form.collaborators.data}",
+                                                          "is_finished": form.is_finished.data})
+    session.commit()
+    return redirect("/")
 
 
 def main():
